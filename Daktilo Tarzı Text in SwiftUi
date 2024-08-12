@@ -1,0 +1,52 @@
+import SwiftUI
+
+struct TestView: View {
+    let prefixText = "En "
+    let suffixText = " Şekilde Öğren"
+    let originalWord = "Eğlenceli"
+    let targetWord = "Etkili"
+    
+    @State private var displayedWord = ""
+    @State private var fullDisplayedText = ""
+    @State private var targetLetters = [Character]()
+    @State private var timer: Timer?
+    @State private var cycle = false  // Bu değişken hangi kelimeye döneceğimizi kontrol eder
+    
+    var body: some View {
+        Text(fullDisplayedText)
+            .font(.largeTitle)
+            .onAppear {
+                startTyping()
+            }
+    }
+    
+    func startTyping() {
+        displayedWord = "" // Kelimeyi sıfırla
+        targetLetters = Array(cycle ? targetWord : originalWord) // Hedef kelimeyi ayarla
+        
+        var index = 0
+        timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { tempTimer in
+            if index < targetLetters.count {
+                displayedWord.append(targetLetters[index])
+                fullDisplayedText = prefixText + displayedWord + suffixText
+                index += 1
+            } else {
+                tempTimer.invalidate()
+                switchWord()
+            }
+        }
+    }
+    
+    func switchWord() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            cycle.toggle() // Kelimeyi değiştir
+            startTyping()  // Tekrar başlat
+        }
+    }
+}
+
+struct TestView_Previews: PreviewProvider {
+    static var previews: some View {
+        TestView()
+    }
+}
